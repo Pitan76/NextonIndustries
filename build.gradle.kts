@@ -72,6 +72,7 @@ dependencies {
     modImplementation("net.pitan76:mcpitanlib-fabric-${project.property("mcpitanlib_version")}") {
         exclude(group = "net.fabricmc.fabric-api")
         exclude(group = "dev.architectury")
+        exclude(group = "me.shedaniel.cloth")
     }
 
     if (machineryJar.exists()) {
