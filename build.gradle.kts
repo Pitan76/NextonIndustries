@@ -34,7 +34,9 @@ loom {
 }
 
 repositories {
-    maven(url = "https://maven.pitan76.net/")
+    maven("https://maven.fabricmc.net/")
+    maven("https://maven.pitan76.net/")
+    maven("https://maven.architectury.dev/")
     flatDir {
         dirs(
             "${project.rootDir}/machinery/fabric/build/libs",
@@ -75,11 +77,7 @@ dependencies {
     minecraft("com.mojang:minecraft:${project.property("minecraft_version")}")
     mappings(loom.officialMojangMappings())
     modImplementation("net.fabricmc:fabric-loader:${project.property("fabric_loader_version")}")
-    modImplementation("net.pitan76:mcpitanlib-fabric-${project.property("mcpitanlib_version")}") {
-        exclude(group = "net.fabricmc.fabric-api")
-        exclude(group = "dev.architectury")
-        exclude(group = "me.shedaniel.cloth")
-    }
+    modImplementation("net.pitan76:mcpitanlib-fabric-${project.property("mcpitanlib_version")}")
 
     implementation("net.pitan76:nextonmachinery:1.0.0")
     implementation("net.pitan76:nextondynamics:1.0.0.201")
