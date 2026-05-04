@@ -3,7 +3,7 @@ import com.matthewprenger.cursegradle.CurseRelation
 import org.gradle.kotlin.dsl.closureOf
 
 plugins {
-    id("fabric-loom") version "1.10-SNAPSHOT"
+    id("fabric-loom") version "1.7-SNAPSHOT"
     id("maven-publish")
     id("com.modrinth.minotaur") version "2.+"
     id("com.matthewprenger.cursegradle") version "1.5.0"
