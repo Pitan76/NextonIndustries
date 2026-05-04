@@ -16,7 +16,7 @@ base {
     archivesName.set(project.property("archives_base_name") as String)
 }
 
-val targetJavaVersion = 8
+val targetJavaVersion = 17
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
     withSourcesJar()
