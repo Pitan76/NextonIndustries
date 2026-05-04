@@ -37,11 +37,11 @@ repositories {
     maven(url = "https://maven.pitan76.net/")
 }
 
-val machineryJar = layout.projectDirectory.file("../machinery/fabric/build/libs/machinery-1.0.0.jar").asFile
-val dynamicsJar = layout.projectDirectory.file("../dynamics/build/libs/nextondynamics-1.0.0.201.jar").asFile
+val machineryJar = layout.projectDirectory.file("./machinery/fabric/build/libs/machinery-1.0.0.jar").asFile
+val dynamicsJar = layout.projectDirectory.file("./dynamics/build/libs/nextondynamics-1.0.0.201.jar").asFile
 
 tasks.register<Exec>("buildMachinery") {
-    workingDir = file("../machinery")
+    workingDir = file("./machinery")
 
     if (System.getProperty("os.name").lowercase().contains("windows")) {
         commandLine("cmd", "/c", "gradlew.bat", "build")
@@ -51,7 +51,7 @@ tasks.register<Exec>("buildMachinery") {
 }
 
 tasks.register<Exec>("buildDynamics") {
-    workingDir = file("../dynamics")
+    workingDir = file("./dynamics")
 
     if (System.getProperty("os.name").lowercase().contains("windows")) {
         commandLine("cmd", "/c", "gradlew.bat", "build")
