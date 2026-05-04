@@ -35,10 +35,16 @@ loom {
 
 repositories {
     maven(url = "https://maven.pitan76.net/")
+    flatDir {
+        dirs(
+            "${project.rootDir}/machinery/fabric/build/libs",
+            "${project.rootDir}/dynamics/build/libs"
+        )
+    }
 }
 
-val machineryJar = layout.projectDirectory.file("./machinery/fabric/build/libs/machinery-1.0.0.jar").asFile
-val dynamicsJar = layout.projectDirectory.file("./dynamics/build/libs/nextondynamics-1.0.0.201.jar").asFile
+val machineryJar = files("./machinery/fabric/build/libs/nextonmachinery-1.0.0.jar")
+val dynamicsJar = files("./dynamics/build/libs/nextondynamics-1.0.0.201.jar")
 
 tasks.register<Exec>("buildMachinery") {
     workingDir = file("./machinery")
@@ -75,21 +81,11 @@ dependencies {
         exclude(group = "me.shedaniel.cloth")
     }
 
-    if (machineryJar.exists()) {
-        modImplementation(files(machineryJar))
-        include(files(machineryJar))
-    }
+    implementation("net.pitan76:nextonmachinery:1.0.0")
+    implementation("net.pitan76:nextondynamics:1.0.0.201")
 
-    if (dynamicsJar.exists()) {
-        modImplementation(files(dynamicsJar))
-        include(files(dynamicsJar))
-    }
-
-//    modImplementation(files("dynamics/build/libs/machinery.jar"))
-
-//    include(project(":dynamics"))
-//    include(project(":machinery:common"))
-//    include(project(":machinery:fabric"))
+    include("net.pitan76:nextonmachinery:1.0.0")
+    include("net.pitan76:nextondynamics:1.0.0.201")
 }
 
 tasks.processResources {
