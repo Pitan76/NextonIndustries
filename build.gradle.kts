@@ -69,7 +69,10 @@ dependencies {
     minecraft("com.mojang:minecraft:${project.property("minecraft_version")}")
     mappings(loom.officialMojangMappings())
     modImplementation("net.fabricmc:fabric-loader:${project.property("fabric_loader_version")}")
-//    modImplementation("net.pitan76:mcpitanlib-fabric-${project.property("mcpitanlib_version")}")
+    modImplementation("net.pitan76:mcpitanlib-fabric-${project.property("mcpitanlib_version")}") {
+        exclude(group = "net.fabricmc.fabric-api")
+        exclude(group = "dev.architectury")
+    }
 
     if (machineryJar.exists()) {
         modImplementation(files(machineryJar))
