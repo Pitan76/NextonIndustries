@@ -1,0 +1,6 @@
+[submodule "dynamics"]
+	path = dynamics
+	url = git@github.com:Pitan76/NextonDynamics.git
+[submodule "machinery"]
+	path = machinery
+	url = git@github.com:Pitan76/NextonMachinery.git

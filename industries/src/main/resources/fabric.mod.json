@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "nextonindustries",
+  "version": "${version}",
+  "name": "Nexton Industries",
+  "description": "A mod introduces various element of industry.",
+  "authors": [
+    "Pitan"
+  ],
+  "contact": {
+    "sources": "https://github.com/Pitan76/NextonIndustries",
+    "issues": "https://github.com/Pitan76/NextonIndustries/issues",
+    "homepage": "https://curseforge/minecraft/mc-mods/nexton-industries"
+  },
+  "license": "MIT",
+  "icon": "assets/nextonindustries/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.pitan76.nexton.industries.NextonIndustries"
+    ],
+    "client": [
+      "net.pitan76.nexton.industries.client.NextonIndustriesClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": "*",
+    "minecraft": "*",
+    "mcpitanlib": ">3.6.7"
+  }
+}
