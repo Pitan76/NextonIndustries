@@ -37,8 +37,8 @@ repositories {
     maven(url = "https://maven.pitan76.net/")
 }
 
-val machineryJar = layout.projectDirectory.file("../machinery/fabric/build/libs/machinery.jar").asFile
-val dynamicsJar = layout.projectDirectory.file("../dynamics/build/libs/dynamics.jar").asFile
+val machineryJar = layout.projectDirectory.file("../machinery/fabric/build/libs/machinery-1.0.0.jar").asFile
+val dynamicsJar = layout.projectDirectory.file("../dynamics/build/libs/nextondynamics-1.0.0.201.jar").asFile
 
 tasks.register<Exec>("buildMachinery") {
     workingDir = file("../machinery")
