@@ -118,7 +118,7 @@ tasks.register<Exec>("buildDynamics") {
 tasks.named("build") {
     dependsOn("clearUpdatedSubmoduleCache")
 
-//    dependsOn("buildCore")
+    dependsOn("buildCore")
     dependsOn("buildMachinery")
     dependsOn("buildDynamics")
 }
