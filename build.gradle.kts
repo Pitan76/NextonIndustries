@@ -136,6 +136,9 @@ dependencies {
     include("net.pitan76:nextoncore:${project.version}")
     include("net.pitan76:nextonmachinery:${project.version}")
     include("net.pitan76:nextondynamics:${project.version}.201")
+
+    modImplementation("RebornCore:RebornCore-1.20:5.10.4")
+    modImplementation("TechReborn:TechReborn-1.20:5.10.4")
 }
 
 tasks.processResources {
