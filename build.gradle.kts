@@ -1,6 +1,7 @@
 import com.matthewprenger.cursegradle.CurseProject
 import com.matthewprenger.cursegradle.CurseRelation
 import org.gradle.kotlin.dsl.closureOf
+import java.security.MessageDigest
 
 plugins {
     id("fabric-loom") version "1.13-SNAPSHOT"
@@ -45,8 +46,53 @@ repositories {
     }
 }
 
+fun fileHash(file: File): String {
+    val digest = MessageDigest.getInstance("SHA-256")
+    file.inputStream().use { fis ->
+        val buffer = ByteArray(8192)
+        var read = fis.read(buffer)
+        while (read != -1) {
+            digest.update(buffer, 0, read)
+            read = fis.read(buffer)
+        }
+    }
+    return digest.digest().joinToString("") { "%02x".format(it) }
+}
+
+
+val coreJar = files("./core/fabric/build/libs/nextoncore-1.0.0.jar")
 val machineryJar = files("./machinery/fabric/build/libs/nextonmachinery-1.0.0.jar")
 val dynamicsJar = files("./dynamics/build/libs/nextondynamics-1.0.0.201.jar")
+
+tasks.register("clearUpdatedSubmoduleCache") {
+    doLast {
+        val targets = listOf(
+            "nextoncore",
+            "nextonmachinery",
+            "nextondynamics",
+        )
+
+        val home = System.getProperty("user.home")
+
+        targets.forEach {
+            val dir = File("$home/.gradle/caches/modules-2/files-2.1/net.pitan76/$it")
+            if (dir.exists()) {
+                println("delete cache: $it")
+                dir.deleteRecursively()
+            }
+        }
+    }
+}
+
+tasks.register<Exec>("buildCore") {
+    workingDir = file("./core")
+
+    if (System.getProperty("os.name").lowercase().contains("windows")) {
+        commandLine("cmd", "/c", "gradlew.bat", "build")
+    } else {
+        commandLine("./gradlew", "build")
+    }
+}
 
 tasks.register<Exec>("buildMachinery") {
     workingDir = file("./machinery")
@@ -69,6 +115,9 @@ tasks.register<Exec>("buildDynamics") {
 }
 
 tasks.named("build") {
+    dependsOn("clearUpdatedSubmoduleCache")
+
+    dependsOn("buildCore")
     dependsOn("buildMachinery")
     dependsOn("buildDynamics")
 }
@@ -79,9 +128,11 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${project.property("fabric_loader_version")}")
     modImplementation("net.pitan76:mcpitanlib-fabric-${project.property("mcpitanlib_version")}")
 
+    modImplementation("net.pitan76:nextoncore:1.0.0")
     modImplementation("net.pitan76:nextonmachinery:1.0.0")
     modImplementation("net.pitan76:nextondynamics:1.0.0.201")
 
+    include("net.pitan76:nextoncore:1.0.0")
     include("net.pitan76:nextonmachinery:1.0.0")
     include("net.pitan76:nextondynamics:1.0.0.201")
 }

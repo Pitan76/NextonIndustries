@@ -4,3 +4,6 @@
 [submodule "machinery"]
 	path = machinery
 	url = git@github.com:Pitan76/NextonMachinery.git
+[submodule "core"]
+	path = core
+	url = https://github.com/Pitan76/NextonCore.git
