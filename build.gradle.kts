@@ -129,13 +129,13 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${project.property("fabric_loader_version")}")
     modImplementation("net.pitan76:mcpitanlib-fabric-${project.property("mcpitanlib_version")}")
 
-    modImplementation("net.pitan76:nextoncore:1.0.0")
-    modImplementation("net.pitan76:nextonmachinery:1.0.0")
-    modImplementation("net.pitan76:nextondynamics:1.0.0.201")
+    modImplementation("net.pitan76:nextoncore:${project.version}")
+    modImplementation("net.pitan76:nextonmachinery:${project.version}")
+    modImplementation("net.pitan76:nextondynamics:${project.version}.201")
 
-    include("net.pitan76:nextoncore:1.0.0")
-    include("net.pitan76:nextonmachinery:1.0.0")
-    include("net.pitan76:nextondynamics:1.0.0.201")
+    include("net.pitan76:nextoncore:${project.version}")
+    include("net.pitan76:nextonmachinery:${project.version}")
+    include("net.pitan76:nextondynamics:${project.version}.201")
 }
 
 tasks.processResources {
