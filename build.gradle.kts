@@ -117,7 +117,7 @@ tasks.register<Exec>("buildDynamics") {
 tasks.named("build") {
     dependsOn("clearUpdatedSubmoduleCache")
 
-    dependsOn("buildCore")
+//    dependsOn("buildCore")
     dependsOn("buildMachinery")
     dependsOn("buildDynamics")
 }
@@ -128,11 +128,11 @@ dependencies {
     modImplementation("net.fabricmc:fabric-loader:${project.property("fabric_loader_version")}")
     modImplementation("net.pitan76:mcpitanlib-fabric-${project.property("mcpitanlib_version")}")
 
-    modImplementation("net.pitan76:nextoncore:1.0.0")
+//    modImplementation("net.pitan76:nextoncore:1.0.0")
     modImplementation("net.pitan76:nextonmachinery:1.0.0")
     modImplementation("net.pitan76:nextondynamics:1.0.0.201")
 
-    include("net.pitan76:nextoncore:1.0.0")
+//    include("net.pitan76:nextoncore:1.0.0")
     include("net.pitan76:nextonmachinery:1.0.0")
     include("net.pitan76:nextondynamics:1.0.0.201")
 }
