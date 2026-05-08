@@ -60,9 +60,9 @@ fun fileHash(file: File): String {
     return digest.digest().joinToString("") { "%02x".format(it) }
 }
 
-val coreJar = files("./core/fabric/build/libs/nextoncore-1.0.0.jar")
-val machineryJar = files("./machinery/fabric/build/libs/nextonmachinery-1.0.0.jar")
-val dynamicsJar = files("./dynamics/build/libs/nextondynamics-1.0.0.201.jar")
+val coreJar = files("./core/fabric/build/libs/nextoncore-${project.version}.jar")
+val machineryJar = files("./machinery/fabric/build/libs/nextonmachinery-${project.version}.jar")
+val dynamicsJar = files("./dynamics/build/libs/nextondynamics-${project.version}.201.jar")
 
 tasks.register("clearUpdatedSubmoduleCache") {
     doLast {
