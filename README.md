@@ -18,7 +18,7 @@ A mod introduces various element of industry.
 
 [//]: # (## Configurations)
 
-# Nexton Dynamics (日本語)
+# Nexton Industries (日本語)
 様々な工業要素を追加するMod。産業開花
 
 ## 前提Mod
