@@ -43,11 +43,32 @@ if (requestedTasks.any { it in submoduleTriggers } && !startParameter.projectPro
             }
     }
 
-    runSubmoduleGradle(File(rootDir, "core"), "build", "publishToMavenLocal")
+    fun coreHash(): String {
+        val props = java.util.Properties()
+        File(rootDir, "core/gradle.properties").inputStream().use { props.load(it) }
+        val version = props.getProperty("mod_version")
 
-    clearRemappedCore(File(rootDir, "machinery"))
-    clearRemappedCore(File(rootDir, "dynamics"))
+        val digest = java.security.MessageDigest.getInstance("SHA-256")
+        listOf("common", "fabric").forEach { platform ->
+            val jar = File(rootDir, "core/$platform/build/libs/nextoncore-$version.jar")
+            if (jar.exists()) digest.update(jar.readBytes())
+        }
+        return digest.digest().joinToString("") { "%02x".format(it) }
+    }
 
-    runSubmoduleGradle(File(rootDir, "machinery"), "build")
-    runSubmoduleGradle(File(rootDir, "dynamics"), "build")
+    runSubmoduleGradle(File(rootDir, "core"), "assemble", "publishToMavenLocal")
+
+    val hashFile = File(rootDir, ".gradle/core-hash.txt")
+    val currentHash = coreHash()
+
+    if (!hashFile.exists() || hashFile.readText() != currentHash) {
+        clearRemappedCore(File(rootDir, "machinery"))
+        clearRemappedCore(File(rootDir, "dynamics"))
+
+        hashFile.parentFile.mkdirs()
+        hashFile.writeText(currentHash)
+    }
+
+    runSubmoduleGradle(File(rootDir, "machinery"), "assemble")
+    runSubmoduleGradle(File(rootDir, "dynamics"), "assemble")
 }
