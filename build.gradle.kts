@@ -123,13 +123,20 @@ fun gradlewCommand(dir: File, vararg args: String): List<String> =
         listOf(File(dir, "gradlew").absolutePath) + args
     }
 
-listOf("Core" to "core", "Machinery" to "machinery", "Dynamics" to "dynamics").forEach { (name, dir) ->
+listOf(
+    Triple("Core", "core", listOf("build", "publishToMavenLocal")),
+    Triple("Machinery", "machinery", listOf("build")),
+    Triple("Dynamics", "dynamics", listOf("build")),
+).forEach { (name, dir, args) ->
     tasks.register<Exec>("build$name") {
         val submoduleDir = file("./$dir")
         workingDir = submoduleDir
-        commandLine(gradlewCommand(submoduleDir, "build"))
+        commandLine(gradlewCommand(submoduleDir, *args.toTypedArray()))
     }
 }
+
+tasks.named("buildMachinery") { mustRunAfter("buildCore") }
+tasks.named("buildDynamics") { mustRunAfter("buildCore", "buildMachinery") }
 
 tasks.register("buildSubmodules") {
     group = "nexton"
@@ -137,23 +144,11 @@ tasks.register("buildSubmodules") {
     dependsOn("buildCore", "buildMachinery", "buildDynamics")
 }
 
-/*
- * サブモジュールをビルドしてから runClient したい場合は devRunClient / devRunServer を使う。
- * jar の更新はコンフィギュレーション時にしか検出できないため、
- * サブモジュールのビルドと実行は別インボケーションに分ける必要がある。
- */
 listOf("runClient", "runServer").forEach { target ->
-    tasks.register<Exec>("dev${target.replaceFirstChar { it.uppercase() }}") {
+    tasks.register("raw${target.replaceFirstChar { it.uppercase() }}") {
         group = "nexton"
-        description = "サブモジュールをビルドしてから $target を実行する"
-        dependsOn("buildSubmodules")
-        workingDir = project.projectDir
-        commandLine(gradlewCommand(project.projectDir, target))
+        dependsOn(target)
     }
-}
-
-tasks.named("build") {
-    dependsOn("buildSubmodules")
 }
 
 dependencies {
