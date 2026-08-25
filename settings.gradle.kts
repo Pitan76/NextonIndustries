@@ -15,7 +15,6 @@ if (requestedTasks.any { it in submoduleTriggers } && !startParameter.projectPro
 
     fun runSubmoduleGradle(dir: File, vararg args: String) {
         val wrapper = File(dir, if (isWindows) "gradlew.bat" else "gradlew").absolutePath
-        // cmd /c は workingDir ではなく PATH から探すため、ラッパーは絶対パスで渡す
         val command = if (isWindows) listOf("cmd", "/c", wrapper) + args else listOf(wrapper) + args
 
         println("> Building submodule '${dir.name}' (${args.joinToString(" ")})")
@@ -31,7 +30,24 @@ if (requestedTasks.any { it in submoduleTriggers } && !startParameter.projectPro
         if (exit != 0) throw GradleException("Failed to build submodule '${dir.name}' (exit code $exit)")
     }
 
+    fun clearRemappedCore(dir: File) {
+        val remappedRoot = File(dir, ".gradle/loom-cache/remapped_mods")
+        if (!remappedRoot.isDirectory) return
+
+        remappedRoot.walkTopDown()
+            .filter { it.isDirectory && it.name.startsWith("nextoncore") }
+            .toList()
+            .forEach {
+                println("> Clearing stale core cache in '${dir.name}': ${it.name}")
+                it.deleteRecursively()
+            }
+    }
+
     runSubmoduleGradle(File(rootDir, "core"), "build", "publishToMavenLocal")
+
+    clearRemappedCore(File(rootDir, "machinery"))
+    clearRemappedCore(File(rootDir, "dynamics"))
+
     runSubmoduleGradle(File(rootDir, "machinery"), "build")
     runSubmoduleGradle(File(rootDir, "dynamics"), "build")
 }
