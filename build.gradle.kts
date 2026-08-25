@@ -113,54 +113,42 @@ run {
     }
 }
 
-tasks.register<Exec>("buildCore") {
-    workingDir = file("./core")
+val isWindows = System.getProperty("os.name").lowercase().contains("windows")
 
-    if (System.getProperty("os.name").lowercase().contains("windows")) {
-        commandLine("cmd", "/c", "gradlew.bat", "build")
+// cmd /c は workingDir ではなく PATH からコマンドを探すため、ラッパーは絶対パスで渡す
+fun gradlewCommand(dir: File, vararg args: String): List<String> =
+    if (isWindows) {
+        listOf("cmd", "/c", File(dir, "gradlew.bat").absolutePath) + args
     } else {
-        commandLine("./gradlew", "build")
+        listOf(File(dir, "gradlew").absolutePath) + args
     }
-}
 
-tasks.register<Exec>("buildMachinery") {
-    workingDir = file("./machinery")
-
-    if (System.getProperty("os.name").lowercase().contains("windows")) {
-        commandLine("cmd", "/c", "gradlew.bat", "build")
-    } else {
-        commandLine("./gradlew", "build")
-    }
-}
-
-tasks.register<Exec>("buildDynamics") {
-    workingDir = file("./dynamics")
-
-    if (System.getProperty("os.name").lowercase().contains("windows")) {
-        commandLine("cmd", "/c", "gradlew.bat", "build")
-    } else {
-        commandLine("./gradlew", "build")
+listOf("Core" to "core", "Machinery" to "machinery", "Dynamics" to "dynamics").forEach { (name, dir) ->
+    tasks.register<Exec>("build$name") {
+        val submoduleDir = file("./$dir")
+        workingDir = submoduleDir
+        commandLine(gradlewCommand(submoduleDir, "build"))
     }
 }
 
 tasks.register("buildSubmodules") {
     group = "nexton"
+    description = "core / machinery / dynamics をビルドする"
     dependsOn("buildCore", "buildMachinery", "buildDynamics")
 }
 
-fun gradlewCommand(vararg args: String): List<String> =
-    if (System.getProperty("os.name").lowercase().contains("windows")) {
-        listOf("cmd", "/c", "gradlew.bat") + args
-    } else {
-        listOf("./gradlew") + args
-    }
-
+/*
+ * サブモジュールをビルドしてから runClient したい場合は devRunClient / devRunServer を使う。
+ * jar の更新はコンフィギュレーション時にしか検出できないため、
+ * サブモジュールのビルドと実行は別インボケーションに分ける必要がある。
+ */
 listOf("runClient", "runServer").forEach { target ->
     tasks.register<Exec>("dev${target.replaceFirstChar { it.uppercase() }}") {
         group = "nexton"
+        description = "サブモジュールをビルドしてから $target を実行する"
         dependsOn("buildSubmodules")
         workingDir = project.projectDir
-        commandLine(gradlewCommand(target))
+        commandLine(gradlewCommand(project.projectDir, target))
     }
 }
 
