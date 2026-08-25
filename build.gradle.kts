@@ -64,23 +64,52 @@ val coreJar = files("./core/fabric/build/libs/nextoncore-${project.version}.jar"
 val machineryJar = files("./machinery/fabric/build/libs/nextonmachinery-${project.version}.jar")
 val dynamicsJar = files("./dynamics/build/libs/nextondynamics-${project.version}.201.jar")
 
-tasks.register("clearUpdatedSubmoduleCache") {
-    doLast {
-        val targets = listOf(
-            "nextoncore",
-            "nextonmachinery",
-            "nextondynamics",
-        )
+val submoduleHashFile = layout.buildDirectory.file("submodule-hash.txt").get().asFile
 
+val submoduleJars = mapOf(
+    "nextoncore" to coreJar,
+    "nextonmachinery" to machineryJar,
+    "nextondynamics" to dynamicsJar,
+)
+
+run {
+    val current = submoduleJars.mapValues { (_, jar) ->
+        jar.singleFile.takeIf { it.exists() }?.let { fileHash(it) } ?: ""
+    }
+
+    val previous = if (submoduleHashFile.exists()) {
+        submoduleHashFile.readLines()
+            .mapNotNull { line -> line.split("=", limit = 2).takeIf { it.size == 2 } }
+            .associate { it[0] to it[1] }
+    } else emptyMap()
+
+    val changed = current.filterKeys { current[it] != previous[it] }.keys
+
+    if (changed.isNotEmpty()) {
+        logger.lifecycle("changed submodules: ${changed.joinToString(", ")}")
+
+        val remappedDir = file(".gradle/loom-cache/remapped_mods/remapped/net/pitan76")
         val home = System.getProperty("user.home")
 
-        targets.forEach {
-            val dir = File("$home/.gradle/caches/modules-2/files-2.1/net.pitan76/$it")
+        changed.forEach { name ->
+            remappedDir.listFiles()
+                ?.filter { it.name == name || it.name.startsWith("$name-") }
+                ?.forEach {
+                    logger.lifecycle("delete remap cache: ${it.name}")
+                    it.deleteRecursively()
+                }
+
+            val dir = File("$home/.gradle/caches/modules-2/files-2.1/net.pitan76/$name")
             if (dir.exists()) {
-                println("delete cache: $it")
+                logger.lifecycle("delete module cache: $name")
                 dir.deleteRecursively()
             }
         }
+
+        if (!submoduleHashFile.parentFile.exists()) submoduleHashFile.parentFile.mkdirs()
+        submoduleHashFile.writeText(
+            current.entries.joinToString(System.lineSeparator()) { "${it.key}=${it.value}" }
+        )
     }
 }
 
@@ -114,12 +143,29 @@ tasks.register<Exec>("buildDynamics") {
     }
 }
 
-tasks.named("build") {
-    dependsOn("clearUpdatedSubmoduleCache")
+tasks.register("buildSubmodules") {
+    group = "nexton"
+    dependsOn("buildCore", "buildMachinery", "buildDynamics")
+}
 
-    dependsOn("buildCore")
-    dependsOn("buildMachinery")
-    dependsOn("buildDynamics")
+fun gradlewCommand(vararg args: String): List<String> =
+    if (System.getProperty("os.name").lowercase().contains("windows")) {
+        listOf("cmd", "/c", "gradlew.bat") + args
+    } else {
+        listOf("./gradlew") + args
+    }
+
+listOf("runClient", "runServer").forEach { target ->
+    tasks.register<Exec>("dev${target.replaceFirstChar { it.uppercase() }}") {
+        group = "nexton"
+        dependsOn("buildSubmodules")
+        workingDir = project.projectDir
+        commandLine(gradlewCommand(target))
+    }
+}
+
+tasks.named("build") {
+    dependsOn("buildSubmodules")
 }
 
 dependencies {
@@ -187,7 +233,7 @@ if (System.getenv("CURSEFORGE_TOKEN") != null) {
             changelog = project.property("changelog") as String + "\nMCPitanLib version: " + (project.property("mcpitanlib_version") as String).split(":")[1]
             releaseType = "release"
 
-            gameVersionStrings.addAll(listOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.20.1", "1.20.3", "1.20.4", "1.21", "1.21.1", "1.21.2", "1.21.3", "1.21.4", "1.21.5", "1.21.6", "1.21.7", "1.21.8", "1.21.9", "1.21.10", "1.21.11", "26.1", "26.1.1"))
+            gameVersionStrings.addAll(listOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.20.1", "1.20.3", "1.20.4", "1.21", "1.21.1", "1.21.2", "1.21.3", "1.21.4", "1.21.5", "1.21.6", "1.21.7", "1.21.8", "1.21.9", "1.21.10", "1.21.11", "26.1", "26.1.1", "26.1.2", "26.2"))
 
             addGameVersion("Fabric")
             mainArtifact(tasks.named("remapJar").get().outputs.files.singleFile)
@@ -206,7 +252,7 @@ if (System.getenv("MODRINTH_TOKEN") != null) {
         projectId.set("nextonindustries")
         versionNumber.set(project.property("mod_version") as String + "-fabric")
 
-        gameVersions.addAll(listOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.20.1", "1.20.3", "1.20.4", "1.21", "1.21.1", "1.21.2", "1.21.3", "1.21.4", "1.21.5", "1.21.6", "1.21.7", "1.21.8", "1.21.9", "1.21.10", "1.21.11"))
+        gameVersions.addAll(listOf("1.18", "1.18.1", "1.18.2", "1.19", "1.19.1", "1.19.2", "1.20.1", "1.20.3", "1.20.4", "1.21", "1.21.1", "1.21.2", "1.21.3", "1.21.4", "1.21.5", "1.21.6", "1.21.7", "1.21.8", "1.21.9", "1.21.10", "1.21.11", "26.1", "26.1.1", "26.1.2", "26.2"))
 
         versionType.set("release")
         uploadFile.set(tasks.named("remapJar").get().outputs.files.singleFile)
